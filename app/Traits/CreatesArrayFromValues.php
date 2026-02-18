@@ -21,12 +21,12 @@ trait CreatesArrayFromValues
         return strtolower($this->name);
     }
 
-    public static function toArray():array
+    public static function toArray(): array
     {
         $cases = static::cases();
         $arrayCase = [];
 
-        foreach($cases as $case){
+        foreach ($cases as $case) {
             $arrayCase[$case->name] = $case->value;
         }
 

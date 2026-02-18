@@ -1,4 +1,5 @@
-import {AchievementCardProps, ACHIEVEMENT_ICONS} from "@/types/achievement";
+import type {AchievementCardProps} from "@/types/achievement";
+import { ACHIEVEMENT_ICONS} from "@/types/achievement";
 
 export default function AchievementCard({ name, unlocked, index }: AchievementCardProps) {
     const icon = ACHIEVEMENT_ICONS[name] ?? '✦';

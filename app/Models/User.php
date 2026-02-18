@@ -5,7 +5,6 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Enums\Badges;
 use App\Services\WalletService;
-use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
@@ -27,7 +26,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'current_badge'
+        'current_badge',
     ];
 
     /**
@@ -78,5 +77,4 @@ class User extends Authenticatable
     {
         return $this->morphOne(Wallet::class, 'owner');
     }
-     
 }

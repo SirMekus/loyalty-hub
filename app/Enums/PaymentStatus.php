@@ -36,13 +36,14 @@ enum PaymentStatus: int
         };
     }
 
-    public static function getFormattedDescription():array
+    public static function getFormattedDescription(): array
     {
         $formatted = [];
         $descriptions = self::cases();
         foreach ($descriptions as $description) {
-            $formatted []= $description->getDescription();
+            $formatted[] = $description->getDescription();
         }
+
         return $formatted;
     }
 }

@@ -18,8 +18,8 @@ class OrderFactory extends Factory
     public function definition(): array
     {
         return [
-            'amount'  => rand(1000, 50000) * 100,
-            'status'  => PaymentStatus::PENDING,
+            'amount' => rand(1000, 50000) * 100,
+            'status' => PaymentStatus::PENDING,
         ];
     }
 }

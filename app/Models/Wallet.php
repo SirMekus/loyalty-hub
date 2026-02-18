@@ -1,12 +1,11 @@
 <?php
 
-
 namespace App\Models;
 
 use App\Enums\Currency;
 use App\Enums\TransactionType;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
@@ -21,13 +20,14 @@ class Wallet extends Model
             'transaction_type' => TransactionType::class,
         ];
     }
+
     protected static function booted()
     {
         static::creating(function ($model) {
             $model->setAttribute('currency', $model?->currency ?? Currency::NGN);
         });
     }
-    
+
     public function transactions(): HasMany
     {
         return $this->hasMany(WalletTransaction::class);
@@ -64,11 +64,11 @@ class Wallet extends Model
     {
         return Attribute::make(
             get: function (): string {
-                return $this->currency->symbol() . ' ' . number_format($this->balance, 2);
+                return $this->currency->symbol().' '.number_format($this->balance, 2);
             },
         );
     }
-    
+
     public function owner(): MorphTo
     {
         return $this->morphTo();

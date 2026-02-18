@@ -21,16 +21,17 @@ class WalletService
 
         $id = (is_array($model) || is_int($model)) ? ($model['id'] ?? $model) : $model->id;
 
-        $obj = new \stdClass();
+        $obj = new \stdClass;
         $obj->class = $class;
         $obj->id = $id;
 
         return $obj;
     }
-    
+
     public function getWalletBalance(?Wallet $wallet = null): int
     {
         $balance = ($wallet === null) ? 0 : $wallet->balance;
+
         return $balance;
     }
 
@@ -39,17 +40,16 @@ class WalletService
         $obj = $this->getClassAndId($model);
         $wallet = null;
         DB::transaction(function () use ($obj, &$wallet, $model) {
-            if($model instanceof Wallet){
-                $wallet = Wallet::where("id", $model->id)->lockForUpdate()->first();
-            }
-            else{
+            if ($model instanceof Wallet) {
+                $wallet = Wallet::where('id', $model->id)->lockForUpdate()->first();
+            } else {
                 $wallet = Wallet::where([
                     ['owner_id', $obj->id],
-                    ['owner_type', $obj->class]
-                ])->lockForUpdate() //if the caller of this method has this method in a transaction, this will lock the wallet record
+                    ['owner_type', $obj->class],
+                ])->lockForUpdate() // if the caller of this method has this method in a transaction, this will lock the wallet record
                     ->first();
             }
-        }, 5); //this will retry 5 times, if there is a deadlock
+        }, 5); // this will retry 5 times, if there is a deadlock
 
         if ($wallet === null) {
             $wallet = $this->createEmptyWallet($model);
@@ -64,7 +64,7 @@ class WalletService
     ): Wallet {
         $description = 'New empty wallet created';
 
-        sleep(1); //Important! Add little delay, to separate wallet timestamps
+        sleep(1); // Important! Add little delay, to separate wallet timestamps
 
         $wallet = Wallet::create(array_merge($config, [
             'owner_id' => $model->id,
@@ -80,9 +80,9 @@ class WalletService
             'currency' => $wallet->currency,
             'description' => $description,
         ]);
+
         return $wallet;
     }
-
 
     public function creditWallet(
         Wallet $wallet,
@@ -99,7 +99,7 @@ class WalletService
             $balance = $this->getWalletBalance($wallet);
             $newBalance = $balance + $amount;
 
-            sleep(1); //Important! Add little delay, to separate wallet timestamps
+            sleep(1); // Important! Add little delay, to separate wallet timestamps
 
             $data = [
                 'wallet_id' => $wallet->id,
@@ -107,9 +107,9 @@ class WalletService
                 'opening_balance' => $balance,
                 'balance' => $newBalance,
                 'fee' => $fee,
-                "net_balance" => $newBalance - $fee,
+                'net_balance' => $newBalance - $fee,
                 'closing_balance' => $newBalance,
-                'currency' => "NGN",
+                'currency' => 'NGN',
                 'description' => $description ?? 'Credit in NGN',
                 'transaction_type' => TransactionType::CREDIT->name,
             ];

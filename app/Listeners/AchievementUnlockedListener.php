@@ -30,10 +30,10 @@ class AchievementUnlockedListener implements ShouldQueue
         $user = $achievement->user;
 
         $achievementCount = $user->achievements()->count();
-        
+
         $earnedBadge = app(BadgeService::class)->resolveBadge($achievementCount);
         $currentBadge = $user->current_badge;
-        
+
         if ($earnedBadge !== $currentBadge) {
             $user->update(['current_badge' => $earnedBadge]);
 

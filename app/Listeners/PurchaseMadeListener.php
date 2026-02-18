@@ -5,7 +5,6 @@ namespace App\Listeners;
 use App\Events\PurchaseMade;
 use App\Services\AchievementService;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
 
 class PurchaseMadeListener implements ShouldQueue
 {
@@ -23,7 +22,7 @@ class PurchaseMadeListener implements ShouldQueue
     public function handle(PurchaseMade $event): void
     {
         $user = $event->user;
-        
+
         $this->service->handlePurchase($user);
     }
 }

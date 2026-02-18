@@ -26,6 +26,7 @@ class AchievementTest extends TestCase
     use RefreshDatabase;
 
     private AchievementService $service;
+
     private BadgeService $badgeService;
 
     protected function setUp(): void
@@ -35,15 +36,15 @@ class AchievementTest extends TestCase
         $this->badgeService = app(BadgeService::class);
     }
 
-    public function runOrderLifeCycle(User $user, int $count=1):void
+    public function runOrderLifeCycle(User $user, int $count = 1): void
     {
         $orderService = app(OrderService::class);
         $purchaseListener = app(PurchaseMadeListener::class);
         $achievementListener = app(AchievementUnlockedListener::class);
-        for($i=0;$i<$count;$i++){
+        for ($i = 0; $i < $count; $i++) {
             $order = $orderService->createOrder($user);
 
-            $purchaseListener->handle(new PurchaseMade($user,$order));
+            $purchaseListener->handle(new PurchaseMade($user, $order));
 
             // We improvise timestamp difference so that our "latest" will really fetch the latest entry
             sleep(1);
@@ -61,14 +62,13 @@ class AchievementTest extends TestCase
 
         $orderService = app(OrderService::class);
         $order = $orderService->createOrder($user);
-        
+
         Event::assertDispatched(PurchaseMade::class);
 
         // Now we run the listener to confirm the content runs correctly
         $purchaseListener = app(PurchaseMadeListener::class);
-        $purchaseListener->handle(new PurchaseMade($user,$order));
+        $purchaseListener->handle(new PurchaseMade($user, $order));
 
-        
         Event::assertDispatched(AchievementUnlocked::class);
 
         // Now we want to confirm that the achievement is actually run and saved in the database
@@ -78,7 +78,7 @@ class AchievementTest extends TestCase
 
         $this->assertDatabaseHas('achievements', [
             'user_id' => $user->id,
-            'name'    => Achievements::First_Purchase->name,
+            'name' => Achievements::First_Purchase->name,
         ]);
     }
 
@@ -119,7 +119,7 @@ class AchievementTest extends TestCase
         $this->runOrderLifeCycle($user, 1);
 
         $next = $this->service->getNextAchievements($user);
-        
+
         $this->assertContains(Achievements::Purchase_Streak->name, $next);
         $this->assertNotContains(Achievements::First_Purchase->name, $next);
     }
@@ -128,10 +128,10 @@ class AchievementTest extends TestCase
     public function it_resolves_correct_badge_for_achievement_count(): void
     {
         $this->assertEquals(Badges::UNRANKED, $this->badgeService->resolveBadge(0));
-        $this->assertEquals(Badges::BRONZE,   $this->badgeService->resolveBadge(1));
-        $this->assertEquals(Badges::SILVER,   $this->badgeService->resolveBadge(2));
-        $this->assertEquals(Badges::GOLD,     $this->badgeService->resolveBadge(3));
-        $this->assertEquals(Badges::GOLD,     $this->badgeService->resolveBadge(4)); // no badge at 4, stays GOLD
+        $this->assertEquals(Badges::BRONZE, $this->badgeService->resolveBadge(1));
+        $this->assertEquals(Badges::SILVER, $this->badgeService->resolveBadge(2));
+        $this->assertEquals(Badges::GOLD, $this->badgeService->resolveBadge(3));
+        $this->assertEquals(Badges::GOLD, $this->badgeService->resolveBadge(4)); // no badge at 4, stays GOLD
         $this->assertEquals(Badges::PLATINUM, $this->badgeService->resolveBadge(5));
     }
 
@@ -144,7 +144,7 @@ class AchievementTest extends TestCase
         $listener->handle(new BadgeUnlocked($user));
 
         $this->assertDatabaseHas('wallet_transactions', [
-            'amount'           => config('business.cashback') * 100,
+            'amount' => config('business.cashback') * 100,
             'transaction_type' => TransactionType::CREDIT->name,
         ]);
 

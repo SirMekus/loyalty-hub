@@ -1,4 +1,5 @@
-import {BadgeName, BadgeConfig, BadgeTimelineProps, ALL_BADGES, BADGE_CONFIG} from "@/types/badge";
+import type {BadgeName, BadgeTimelineProps} from "@/types/badge";
+import { ALL_BADGES, BADGE_CONFIG} from "@/types/badge";
 
 export default function BadgeTimeline({ current }: BadgeTimelineProps) {
 

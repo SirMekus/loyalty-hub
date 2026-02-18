@@ -1,4 +1,5 @@
-import {BadgeName, BadgeProgressBarProps, BADGE_CONFIG} from "@/types/badge";
+import type {BadgeName, BadgeProgressBarProps} from "@/types/badge";
+import { BADGE_CONFIG} from "@/types/badge";
 import BadgeMedal from "./badge-medal";
 
 export default function BadgeProgressBar({ current, next, remaining }: BadgeProgressBarProps) {

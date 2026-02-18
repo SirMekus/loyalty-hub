@@ -15,7 +15,7 @@ class AchievementService
     public function handlePurchase(User $user): void
     {
         $previousUnlocked = $this->getUnlockedAchievements($user);
-        $purchaseCount    = $user->orders()->count();
+        $purchaseCount = $user->orders()->count();
 
         $achievementList = Achievements::cases();
 
@@ -56,19 +56,19 @@ class AchievementService
 
     /**
      * Summary of getProgress
-     * @param User $user
+     *
      * @return array{next_achievements: array, unlocked_achievements: array}
      */
-    public function getProgress(User $user):array
+    public function getProgress(User $user): array
     {
         $unlockedRaw = $this->getUnlockedAchievements($user);
         $nextRaw = $this->getNextAchievements($user);
 
         /**
          * Names stored in database use underscore case: First_Purchase, Purchase_Streak, etc.
-         * 
+         *
          * Convert to display format: First_Purchase → First Purchase
-        */
+         */
         $unlocked = array_map(fn ($n) => str_replace('_', ' ', $n), $unlockedRaw);
         $next = array_map(fn ($n) => str_replace('_', ' ', $n), $nextRaw);
 

@@ -38,7 +38,7 @@ class MakeOrder extends Command
         for ($i = 0; $i < $count; $i++) {
             $order = $orderService->createOrder($user);
             $this->line('');
-            $this->line("  Order #{$order->id} created — amount: ₦" . number_format($order->amount / 100, 2));
+            $this->line("  Order #{$order->id} created — amount: ₦".number_format($order->amount / 100, 2));
             $bar->advance();
         }
 

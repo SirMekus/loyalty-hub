@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Achievement extends Model
 {
     use HasFactory;
-    
+
     protected $fillable = ['user_id', 'name'];
 
     // protected function casts(): array

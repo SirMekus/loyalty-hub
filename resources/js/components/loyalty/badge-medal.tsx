@@ -1,4 +1,5 @@
-import {BadgeName, BadgeSize, BadgeConfig, BadgeMedalProps, BADGE_CONFIG} from "@/types/badge";
+import type {BadgeName, BadgeSize, BadgeMedalProps} from "@/types/badge";
+import { BADGE_CONFIG} from "@/types/badge";
 
 export default function BadgeMedal({ name, size = 'md', animate = false }: BadgeMedalProps) {
     const cfg = BADGE_CONFIG[name as BadgeName] ?? BADGE_CONFIG.Unranked;

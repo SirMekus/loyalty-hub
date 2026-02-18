@@ -1,18 +1,19 @@
+import { usePage } from '@inertiajs/react';
 import { useState, useEffect, useCallback } from 'react';
-import AppLayout from '@/layouts/app-layout-alt';
-import BadgeMedal from '@/components/loyalty/badge-medal';
 import AchievementCard from '@/components/loyalty/achievement-card';
+import BadgeMedal from '@/components/loyalty/badge-medal';
 import BadgeProgressBar from '@/components/loyalty/badge-progress-bar';
 import BadgeTimeline from '@/components/loyalty/badge-timeline';
 import StatCard from '@/components/loyalty/stat-card';
-import { AchievementData, ACHIEVEMENT_ICONS, ALL_ACHIEVEMENT_NAMES } from "@/types/achievement";
+import AppLayout from '@/layouts/app-layout-alt';
+import type { AchievementData} from "@/types/achievement";
+import { ACHIEVEMENT_ICONS, ALL_ACHIEVEMENT_NAMES } from "@/types/achievement";
 import { BADGE_CONFIG } from "@/types/badge";
-import { usePage } from '@inertiajs/react';
-import { UserProfile } from '@/types/user';
+import type { UserProfile } from '@/types/user';
 
 interface PageProps {
     users: UserProfile[];
-    [key: string]: any;
+    [key: string]: unknown;
 }
 
 async function fetchUserAchievements(userId: number): Promise<AchievementData> {

@@ -14,7 +14,7 @@ enum Currency: string
 
     public function symbol(): string
     {
-        return match($this){
+        return match ($this) {
             self::NGN => '₦',
             self::USD => '$',
             default => '₦'

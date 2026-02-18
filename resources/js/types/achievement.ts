@@ -1,5 +1,5 @@
-import {BadgeName} from "@/types/badge";
-import {UserProfile} from "@/types/user";
+import type {BadgeName} from "@/types/badge";
+import type {UserProfile} from "@/types/user";
 
 export interface AchievementData {
     user: UserProfile;

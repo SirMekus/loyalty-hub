@@ -14,7 +14,7 @@ class DatabaseSeeder extends Seeder
     {
         User::factory(5)->create();
         $this->call([
-            OrderSeeder::class
+            OrderSeeder::class,
         ]);
     }
 }

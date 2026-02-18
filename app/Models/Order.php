@@ -8,7 +8,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Order extends Model
 {
-     use HasFactory;
+    use HasFactory;
+
     protected $fillable = ['user_id', 'amount', 'status'];
 
     public function user(): BelongsTo

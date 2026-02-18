@@ -57,6 +57,13 @@ class User extends Authenticatable
         ];
     }
 
+    protected static function booted()
+    {
+        static::created(function ($user) {
+            app(WalletService::class)->createEmptyWallet($user);
+        });
+    }
+
     public function orders(): HasMany
     {
         return $this->hasMany(Order::class);
@@ -71,14 +78,5 @@ class User extends Authenticatable
     {
         return $this->morphOne(Wallet::class, 'owner');
     }
-
-    // protected function wallet(): Attribute
-    // {
-    //     return Attribute::make(
-    //         get: function (): WalletTransaction {
-    //             return (new WalletService())->getWalletByModelOrId($this);
-    //         }
-    //     );
-    // }
      
 }

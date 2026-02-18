@@ -102,11 +102,9 @@ const LOYALTY_STYLES = `
 
 interface LoyaltyLayoutProps {
   children: ReactNode;
-  /** Shown in the header's right-hand endpoint badge. Passed down from the page. */
-  endpointHint?: string;
 }
 
-export default function AppLayout({ children, endpointHint }: LoyaltyLayoutProps) {
+export default function AppLayout({ children }: LoyaltyLayoutProps) {
   return (
     <>
       <style>{LOYALTY_STYLES}</style>
@@ -123,12 +121,6 @@ export default function AppLayout({ children, endpointHint }: LoyaltyLayoutProps
                 Loyalty<span className="text-violet-400">Hub</span>
               </span>
             </div>
-
-            {endpointHint && (
-              <div className="text-xs text-white/30 font-mono tracking-widest uppercase">
-                {endpointHint}
-              </div>
-            )}
           </div>
         </header>
 

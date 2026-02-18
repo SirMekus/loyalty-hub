@@ -12,10 +12,10 @@ enum Badges: int
 {
     use CreatesArrayFromValues;
     case UNRANKED = 0;
-    case BRONZE = 4;
-    case SILVER = 8;
-    case GOLD = 12;
-    case PLATINUM = 16;
+    case BRONZE = 1;
+    case SILVER = 2;
+    case GOLD = 3;
+    case PLATINUM = 5;
 
     public static function normalizeForDatabaseEntry(string $name):self
     {

@@ -5,109 +5,34 @@ import AchievementCard from '@/components/loyalty/achievement-card';
 import BadgeProgressBar from '@/components/loyalty/badge-progress-bar';
 import BadgeTimeline from '@/components/loyalty/badge-timeline';
 import StatCard from '@/components/loyalty/stat-card';
-import {AchievementData, ACHIEVEMENT_ICONS, ALL_ACHIEVEMENT_NAMES} from "@/types/achievement";  
+import { AchievementData, ACHIEVEMENT_ICONS, ALL_ACHIEVEMENT_NAMES } from "@/types/achievement";
 import { BADGE_CONFIG } from "@/types/badge";
 import { usePage } from '@inertiajs/react';
 import { UserProfile } from '@/types/user';
 
 interface PageProps {
-  users: UserProfile[];
-  [key: string]: any;
+    users: UserProfile[];
+    [key: string]: any;
 }
 
-const MOCK_USERS: AchievementData[] = [
-    {
-        user: { id: 1, name: 'Amaka Osei', email: 'amaka@example.com' },
-        unlocked_achievements: ['First Purchase'],
-        next_available_achievements: [
-            'Purchase Streak',
-            'Mid Tier Shopper',
-            'High Tier Shopper',
-            'Loyal Customer',
-        ],
-        current_badge: 'Unranked',
-        next_badge: 'Bronze',
-        remaining_to_unlock_next_badge: 3,
-        total_purchases: 1,
-    },
-    {
-        user: { id: 2, name: 'Chidi Nwosu', email: 'chidi@example.com' },
-        unlocked_achievements: ['First Purchase', 'Purchase Streak'],
-        next_available_achievements: [
-            'Mid Tier Shopper',
-            'High Tier Shopper',
-            'Loyal Customer',
-        ],
-        current_badge: 'Unranked',
-        next_badge: 'Bronze',
-        remaining_to_unlock_next_badge: 2,
-        total_purchases: 5,
-    },
-    {
-        user: { id: 3, name: 'Fatima Aliyu', email: 'fatima@example.com' },
-        unlocked_achievements: [
-            'First Purchase',
-            'Purchase Streak',
-            'Mid Tier Shopper',
-            'High Tier Shopper',
-        ],
-        next_available_achievements: ['Loyal Customer'],
-        current_badge: 'Bronze',
-        next_badge: 'Silver',
-        remaining_to_unlock_next_badge: 4,
-        total_purchases: 15,
-    },
-    {
-        user: { id: 4, name: 'Emeka Adeyemi', email: 'emeka@example.com' },
-        unlocked_achievements: [
-            'First Purchase',
-            'Purchase Streak',
-            'Mid Tier Shopper',
-            'High Tier Shopper',
-            'Loyal Customer',
-        ],
-        next_available_achievements: [],
-        current_badge: 'Bronze',
-        next_badge: 'Silver',
-        remaining_to_unlock_next_badge: 3,
-        total_purchases: 20,
-    },
-    {
-        user: { id: 5, name: 'Ngozi Balogun', email: 'ngozi@example.com' },
-        unlocked_achievements: [
-            'First Purchase',
-            'Purchase Streak',
-            'Mid Tier Shopper',
-            'High Tier Shopper',
-            'Loyal Customer',
-        ],
-        next_available_achievements: [],
-        current_badge: 'Gold',
-        next_badge: 'Platinum',
-        remaining_to_unlock_next_badge: 1,
-        total_purchases: 20,
-    },
-];
-
-async function fetchAchievements(userId: number): Promise<AchievementData> {
-    await new Promise((r) => setTimeout(r, 700));
-    const user = MOCK_USERS.find((u) => u.user.id === userId);
-    if (!user) throw new Error('User not found');
-    return user;
+async function fetchUserAchievements(userId: number): Promise<AchievementData> {
+    const response = await fetch(`/api/users/${userId}/achievements`);
+    if (!response.ok) throw new Error(`Request failed: ${response.status} ${response.statusText}`);
+    return response.json();
 }
 
 export default function LoyaltyDashboard() {
-    const [selectedUserId, setSelectedUserId] = useState<number>(1);
+    const { users } = usePage<PageProps>().props;
+    const [selectedUserId, setSelectedUserId] = useState<number>(users[0]?.id ?? 0);
     const [data, setData] = useState<AchievementData | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
-    const { users } = usePage<PageProps>().props;
 
     const load = useCallback(async (id: number): Promise<void> => {
         setLoading(true);
         setError(null);
         try {
-            const result = await fetchAchievements(id);
+            const result = await fetchUserAchievements(id);
             setData(result);
         } catch (e) {
             setError(e instanceof Error ? e.message : 'Unknown error');
@@ -132,13 +57,13 @@ export default function LoyaltyDashboard() {
                     Select Customer
                 </p>
                 <div className="flex flex-wrap gap-2">
-                    {MOCK_USERS.map((u) => (
+                    {users.map((u) => (
                         <button
-                            key={u.user.id}
-                            onClick={() => setSelectedUserId(u.user.id)}
-                            className={`user-btn rounded-xl border border-white/10 px-4 py-2 text-sm font-medium text-white/70 ${selectedUserId === u.user.id ? 'active text-white' : ''} `}
+                            key={u.id}
+                            onClick={() => setSelectedUserId(u.id)}
+                            className={`user-btn rounded-xl border border-white/10 px-4 py-2 text-sm font-medium text-white/70 ${selectedUserId === u.id ? 'active text-white' : ''} `}
                         >
-                            {u.user.name.split(' ')[0]}
+                            {u.name.split(' ')[0]}
                         </button>
                     ))}
                 </div>
@@ -248,6 +173,29 @@ export default function LoyaltyDashboard() {
                                     : 'achievements needed'
                             }
                         />
+                    </div>
+
+                    {/* Wallet Balance */}
+                    <div
+                        className="glass fade-up rounded-2xl p-5"
+                        style={{ animationDelay: '140ms' }}
+                    >
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="font-display mb-1 text-xs tracking-widest text-white/30 uppercase">
+                                    Wallet Balance
+                                </p>
+                                <p className="font-display text-3xl font-bold text-emerald-400">
+                                    {data.wallet_balance}
+                                </p>
+                                <p className="mt-1 text-xs text-white/30">
+                                    cashback from badge unlocks
+                                </p>
+                            </div>
+                            <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-emerald-500/20 bg-emerald-500/10 text-2xl">
+                                💳
+                            </div>
+                        </div>
                     </div>
 
                     {/* Badge Journey */}
@@ -364,10 +312,10 @@ export default function LoyaltyDashboard() {
 // ─────────────────────────────────────────────────────────────────────────────
 // Inertia layout binding
 // Tells Inertia to wrap this page in my custom layout (app-alt) instead of the default
-// App layout used by the rest of the application.
+// App layout used by the rest of the application (created when I bootstrapped the location).
 // ─────────────────────────────────────────────────────────────────────────────
 LoyaltyDashboard.layout = (page: React.ReactNode) => (
-    <AppLayout endpointHint="GET /api/users/{id}/achievements">
+    <AppLayout>
         {page}
     </AppLayout>
 );

@@ -37,7 +37,6 @@ class Wallet extends Model
     {
         return Attribute::make(
             get: function (): int|float {
-                // dd($this->transactions()->latest()->first());
                 return $this->transactions()->latest()->first()?->net_balance;
             }
         );
@@ -73,85 +72,5 @@ class Wallet extends Model
     public function owner(): MorphTo
     {
         return $this->morphTo();
-    }
-    protected function ownedBy(): Attribute
-    {
-        return Attribute::make(
-            get: function (): ?string {
-                $name = null;
-                if ($this->owner instanceof User) {
-                    $name = $this->owner->full_name;
-                }
-
-                return $name;
-            }
-        );
-    }
-   
-    public function scopeUser($query, ?User $user = null)
-    {
-        $user ??= request()->user();
-        return $query->where('owner_id', $user?->id)
-                        ->where('owner_type', get_class($user));
-    }
-
-    public function scopeUsd($query)
-    {
-        return $query->where('currency', Currency::USD->value);
-    }
-
-    public function scopeNgn($query)
-    {
-        return $query->where('currency', Currency::NGN->value);
-    }
-
-    protected function currencySymbol(): Attribute
-    {
-        return Attribute::make(
-            get: function (): string {
-                return $this->currency->symbol();
-            }
-        );
-    }
-
-    public function belongsToOwner(Model $model):bool
-    {
-        return $this->owner_type == $model->getMorphClass() && $this->owner_id == $model->id;
-    }
-
-    protected function currencyFormatted(): Attribute
-    {
-        return Attribute::make(
-            get: function (): string {
-                return $this->currency->value;
-            },
-        );
-    }
-
-    protected function isActive(): Attribute
-    {
-        return Attribute::make(
-            get: function (): bool {
-                return $this->active;
-            }
-        );
-    }
-
-    protected function isUsd(): Attribute
-    {
-        return Attribute::make(
-            get: function (): bool {
-                return $this->currency == Currency::USD;
-            }
-        );
-    }
-
-    protected function isNgn(): Attribute
-    {
-        return Attribute::make(
-            get: function (): bool {
-                return $this->currency == Currency::NGN;
-            }
-        );
     }
 }

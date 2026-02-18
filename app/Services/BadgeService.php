@@ -50,15 +50,15 @@ class BadgeService
         if ($badgeIdx !== false && isset($badgeList[$badgeIdx + 1])) {
             $nextBadge = $badgeList[$badgeIdx + 1];
             
-            $required  = Badges::get($nextBadge)->value;
+            $required = Badges::get($nextBadge)->value;
             
             $remaining = max(0, $required - $achievementCount);
         }
 
         return [
             'current_badge' => $nameOfCurrentBadge,
-            'next_badge'    => $nextBadge ?? 'None – you\'ve reached the top!',
-            'remaining'     => $remaining,
+            'next_badge' => $nextBadge ?? 'None – you\'ve reached the top!',
+            'remaining' => $remaining,
         ];
     }
 }

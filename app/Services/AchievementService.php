@@ -70,4 +70,32 @@ class AchievementService
             )
         );
     }
+
+    /**
+     * Summary of getProgress
+     * @param User $user
+     * @return array{next_achievements: array, unlocked_achievements: array}
+     */
+    public function getProgress(User $user):array
+    {
+        $allAchievementKeys = Achievements::keys();
+
+        $unlockedRaw = $this->getUnlockedAchievements($user);
+        $nextRaw = array_values(
+            array_filter($allAchievementKeys, fn ($n) => ! in_array($n, $unlockedRaw, true))
+        );
+
+        /**
+         * Names stored in database use underscore case: First_Purchase, Purchase_Streak, etc.
+         * 
+         * Convert to display format: First_Purchase → First Purchase
+        */
+        $unlocked = array_map(fn ($n) => str_replace('_', ' ', $n), $unlockedRaw);
+        $next = array_map(fn ($n) => str_replace('_', ' ', $n), $nextRaw);
+
+        return [
+            'unlocked_achievements' => $unlocked,
+            'next_achievements' => $next,
+        ];
+    }
 }

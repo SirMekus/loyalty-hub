@@ -99,14 +99,14 @@ class AchievementTest extends TestCase
     }
 
     #[Test]
-    public function it_unlocks_bronze_badge_after_four_achievements(): void
+    public function it_unlocks_bronze_badge_after_one_achievement(): void
     {
         Event::fake();
 
         $user = User::factory()->create();
 
-        // Create enough orders to trigger 4 achievements (1, 5, 10, 15 purchases)
-        $this->runOrderLifeCycle($user, 15);
+        // One order triggers First_Purchase (the 1st achievement), crossing the BRONZE threshold.
+        $this->runOrderLifeCycle($user, 1);
 
         $this->assertTrue($user->fresh()->current_badge == Badges::BRONZE);
     }
@@ -128,11 +128,11 @@ class AchievementTest extends TestCase
     public function it_resolves_correct_badge_for_achievement_count(): void
     {
         $this->assertEquals(Badges::UNRANKED, $this->badgeService->resolveBadge(0));
-        $this->assertEquals(Badges::UNRANKED, $this->badgeService->resolveBadge(3));
-        $this->assertEquals(Badges::BRONZE,   $this->badgeService->resolveBadge(4));
-        $this->assertEquals(Badges::SILVER,   $this->badgeService->resolveBadge(8));
-        $this->assertEquals(Badges::GOLD,     $this->badgeService->resolveBadge(12));
-        $this->assertEquals(Badges::PLATINUM, $this->badgeService->resolveBadge(16));
+        $this->assertEquals(Badges::BRONZE,   $this->badgeService->resolveBadge(1));
+        $this->assertEquals(Badges::SILVER,   $this->badgeService->resolveBadge(2));
+        $this->assertEquals(Badges::GOLD,     $this->badgeService->resolveBadge(3));
+        $this->assertEquals(Badges::GOLD,     $this->badgeService->resolveBadge(4)); // no badge at 4, stays GOLD
+        $this->assertEquals(Badges::PLATINUM, $this->badgeService->resolveBadge(5));
     }
 
     #[Test]
@@ -159,20 +159,14 @@ class AchievementTest extends TestCase
 
         $user = User::factory()->create();
 
-        // Seed 3 achievements – one short of BRONZE (which requires 4).
-        $user->achievements()->createMany([
-            ['name' => Achievements::First_Purchase->name],
-            ['name' => Achievements::Purchase_Streak->name],
-            ['name' => Achievements::Mid_Tier_Shopper->name],
-        ]);
-
-        // The 4th achievement pushes the count to 4, crossing the BRONZE threshold.
-        $fourthAchievement = $user->achievements()->create([
-            'name' => Achievements::High_Tier_Shopper->name,
+        // No prior achievements – BRONZE requires exactly 1.
+        // The 1st achievement pushes the count to 1, crossing the BRONZE threshold.
+        $firstAchievement = $user->achievements()->create([
+            'name' => Achievements::First_Purchase->name,
         ]);
 
         $listener = app(AchievementUnlockedListener::class);
-        $listener->handle(new AchievementUnlocked($fourthAchievement));
+        $listener->handle(new AchievementUnlocked($firstAchievement));
 
         Event::assertDispatched(BadgeUnlocked::class, fn (BadgeUnlocked $e) => $e->user->is($user));
     }
@@ -187,8 +181,8 @@ class AchievementTest extends TestCase
         $progress = $this->badgeService->getBadgeProgress($user->fresh());
 
         // After 5 purchases: unlocked "First Purchase" + "Purchase Streak" = 2 achievements
-        // Bronze requires 4, so remaining = 2
-        $this->assertEquals(2, $progress['remaining']);
-        $this->assertEquals(Badges::BRONZE->name, $progress['next_badge']);
+        // User is now SILVER (requires 2). GOLD requires 3, so remaining = 1.
+        $this->assertEquals(1, $progress['remaining']);
+        $this->assertEquals(Badges::GOLD->name, $progress['next_badge']);
     }
 }

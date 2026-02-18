@@ -29,13 +29,12 @@ class BadgeUnlockedListener implements ShouldQueue
         $this->paymentProvider->disburse($user, $amount);
 
         /**
-         * Credit the 'wallet' (record the earnings) so cumulative earnings are visible on 
+         * Credit the 'wallet' (record the earnings) so cumulative earnings are visible on
          * the dashboard.
-         * 
-         * Note that the "wallet" is just figurative for an actual 
-         * bank account that must have been 
-         * credited. 
-         * 
+         *
+         * Note that the "wallet" is just figurative for an actual
+         * bank account that must have been
+         * credited.
          */
         $wallet = $this->walletService->getWalletByModelOrId($user);
         $this->walletService->creditWallet(

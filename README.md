@@ -65,7 +65,7 @@ Start the Laravel server, Vite dev server, queue worker, and log viewer all at o
 composer dev
 ```
 
-The application will be available at **http://localhost:8000/loyalty**.
+The application will be available at **http://localhost:8000**.
 
 > **The queue worker is required.** All order event listeners (`PurchaseMadeListener`, `AchievementUnlockedListener`, `BadgeUnlockedListener`) implement `ShouldQueue` and are processed asynchronously. Without the queue worker running, no achievements, badge upgrades, or cashback credits will be applied after an order is created.
 
@@ -105,7 +105,7 @@ php artisan app:make-order {userId} {count=1}
 
 | Argument | Description                                |
 |----------|--------------------------------------------|
-| `userId` | The ID of the user to simulate orders for  |
+| `userId` | The ID of the user to simulate orders for (can be gotten from the database or you create a new user. See the end of this doc for how-to)  |
 | `count`  | Number of orders to create (default: `1`)  |
 
 **Examples:**

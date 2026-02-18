@@ -11,7 +11,7 @@ class DashboardController extends Controller
     {
         $users = User::select(['id', 'name', 'email'])->get();
 
-        return Inertia::render('loyalty-dashboard', [
+        return Inertia::render('dashboard', [
             'users' => $users,
         ]);
     }

@@ -2,6 +2,7 @@
 
 namespace App\Events;
 
+use App\Models\Achievement;
 use App\Models\User;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
@@ -19,8 +20,7 @@ class AchievementUnlocked
      * Create a new event instance.
      */
     public function __construct(
-        public readonly string $achievementName,
-        public readonly User $user
+        public readonly Achievement $achievement
     )
     {
         //

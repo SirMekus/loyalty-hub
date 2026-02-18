@@ -12,6 +12,13 @@ class Achievement extends Model
     
     protected $fillable = ['user_id', 'name'];
 
+    // protected function casts(): array
+    // {
+    //     return [
+    //         'name' => Achievements::class,
+    //     ];
+    // }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

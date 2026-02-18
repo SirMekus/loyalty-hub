@@ -7,6 +7,13 @@ import BadgeTimeline from '@/components/loyalty/badge-timeline';
 import StatCard from '@/components/loyalty/stat-card';
 import {AchievementData, ACHIEVEMENT_ICONS, ALL_ACHIEVEMENT_NAMES} from "@/types/achievement";  
 import { BADGE_CONFIG } from "@/types/badge";
+import { usePage } from '@inertiajs/react';
+import { UserProfile } from '@/types/user';
+
+interface PageProps {
+  users: UserProfile[];
+  [key: string]: any;
+}
 
 const MOCK_USERS: AchievementData[] = [
     {
@@ -94,6 +101,7 @@ export default function LoyaltyDashboard() {
     const [data, setData] = useState<AchievementData | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
+    const { users } = usePage<PageProps>().props;
 
     const load = useCallback(async (id: number): Promise<void> => {
         setLoading(true);

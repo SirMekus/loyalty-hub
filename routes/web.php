@@ -10,10 +10,7 @@ Route::get('/', function () {
     ]);
 })->name('home');
 
-Route::get('/loyalty', function () {
-    return Inertia::render('loyalty-dashboard');
-    // return view('loyalty');
-});
+Route::get('/loyalty', App\Http\Controllers\DashboardController::class);
 
 Route::get('dashboard', function () {
     return Inertia::render('dashboard');

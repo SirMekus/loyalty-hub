@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Enums\Achievements;
 use App\Events\AchievementUnlocked;
-use App\Events\BadgeUnlocked;
 use App\Models\User;
 
 class AchievementService
@@ -28,22 +27,6 @@ class AchievementService
                 $achievement = $user->achievements()->create(['name' => $name]);
                 event(new AchievementUnlocked($achievement));
             }
-        }
-    }
-
-    /**
-     * Fire BadgeUnlocked if the user's badge tier has changed.
-     */
-    public function checkAndFireBadge(User $user): void
-    {
-        $achievementCount = $user->achievements()->count();
-        $earnedBadge      = app(BadgeService::class)->resolveBadge($achievementCount);
-        $currentBadge     = $user->current_badge;
-
-        if ($earnedBadge !== $currentBadge) {
-            $user->update(['current_badge' => $earnedBadge]);
-
-            event(new BadgeUnlocked($user));
         }
     }
 
@@ -78,12 +61,8 @@ class AchievementService
      */
     public function getProgress(User $user):array
     {
-        $allAchievementKeys = Achievements::keys();
-
         $unlockedRaw = $this->getUnlockedAchievements($user);
-        $nextRaw = array_values(
-            array_filter($allAchievementKeys, fn ($n) => ! in_array($n, $unlockedRaw, true))
-        );
+        $nextRaw = $this->getNextAchievements($user);
 
         /**
          * Names stored in database use underscore case: First_Purchase, Purchase_Streak, etc.

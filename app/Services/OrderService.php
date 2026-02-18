@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-// use App\Enums\TransactionType;
-
 use App\Enums\PaymentStatus;
 use App\Events\PurchaseMade;
 use App\Models\Order;

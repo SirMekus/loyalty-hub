@@ -5,7 +5,6 @@ import BadgeMedal from '@/components/loyalty/badge-medal';
 import BadgeProgressBar from '@/components/loyalty/badge-progress-bar';
 import BadgeTimeline from '@/components/loyalty/badge-timeline';
 import StatCard from '@/components/loyalty/stat-card';
-import AppLayout from '@/layouts/app-layout';
 import type { AchievementData} from "@/types/achievement";
 import { ACHIEVEMENT_ICONS, ALL_ACHIEVEMENT_NAMES } from "@/types/achievement";
 import { BADGE_CONFIG } from "@/types/badge";
@@ -184,7 +183,7 @@ export default function LoyaltyDashboard() {
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="font-display mb-1 text-xs tracking-widest text-white/30 uppercase">
-                                    Wallet Balance
+                                    Total Earnings
                                 </p>
                                 <p className="font-display text-3xl font-bold text-emerald-400">
                                     {data.wallet_balance}
@@ -309,14 +308,3 @@ export default function LoyaltyDashboard() {
         </>
     );
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Inertia layout binding
-// Tells Inertia to wrap this page in my custom layout (app-alt) instead of the default
-// App layout used by the rest of the application (created when I bootstrapped the location).
-// ─────────────────────────────────────────────────────────────────────────────
-LoyaltyDashboard.layout = (page: React.ReactNode) => (
-    <AppLayout>
-        {page}
-    </AppLayout>
-);

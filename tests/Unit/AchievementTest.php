@@ -11,11 +11,11 @@ use App\Events\PurchaseMade;
 use App\Listeners\AchievementUnlockedListener;
 use App\Listeners\BadgeUnlockedListener;
 use App\Listeners\PurchaseMadeListener;
-use App\Models\Order;
 use App\Models\User;
 use App\Services\AchievementService;
 use App\Services\BadgeService;
 use App\Services\OrderService;
+use App\Services\PaymentService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
 use PHPUnit\Framework\Attributes\Test;
@@ -140,9 +140,16 @@ class AchievementTest extends TestCase
     {
         $user = User::factory()->create();
 
+        // Verify the payment provider is called with the correct user and amount.
+        $this->mock(PaymentService::class)
+            ->shouldReceive('disburse')
+            ->once()
+            ->with($user, config('business.cashback'));
+
         $listener = app(BadgeUnlockedListener::class);
         $listener->handle(new BadgeUnlocked($user));
 
+        // Verify the internal wallet was credited for dashboard earnings tracking.
         $this->assertDatabaseHas('wallet_transactions', [
             'amount' => config('business.cashback') * 100,
             'transaction_type' => TransactionType::CREDIT->name,

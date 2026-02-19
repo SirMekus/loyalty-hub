@@ -65,8 +65,8 @@ class UserAchievementTest extends TestCase
             ->assertOk()
             ->assertJsonFragment([
                 'unlocked_achievements' => [],
-                'current_badge' => Badges::UNRANKED->name,
-                'next_badge' => Badges::BRONZE->name,
+                'current_badge' => ucfirst(strtolower(Badges::UNRANKED->name)),
+                'next_badge' => ucfirst(strtolower(Badges::BRONZE->name)),
                 'remaining_to_unlock_next_badge' => 1,
                 'total_purchases' => 0,
             ]);
@@ -123,8 +123,8 @@ class UserAchievementTest extends TestCase
         $this->getJson("/api/users/{$user->id}/achievements")
             ->assertOk()
             ->assertJsonFragment([
-                'current_badge' => Badges::BRONZE->name,
-                'next_badge' => Badges::SILVER->name,
+                'current_badge' => ucfirst(strtolower(Badges::BRONZE->name)),
+                'next_badge' => ucfirst(strtolower(Badges::SILVER->name)),
                 'remaining_to_unlock_next_badge' => 1,
             ]);
     }
@@ -156,7 +156,7 @@ class UserAchievementTest extends TestCase
         $this->getJson("/api/users/{$user->id}/achievements")
             ->assertOk()
             ->assertJsonFragment([
-                'current_badge' => Badges::PLATINUM->name,
+                'current_badge' => ucfirst(strtolower(Badges::PLATINUM->name)),
                 'next_badge' => "None \u{2013} you've reached the top!",
                 'remaining_to_unlock_next_badge' => 0,
                 'next_available_achievements' => [],

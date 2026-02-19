@@ -1,10 +1,10 @@
 import { usePage } from '@inertiajs/react';
 import { useState, useEffect, useCallback } from 'react';
-import AchievementCard from '@/components/loyalty/achievement-card';
-import BadgeMedal from '@/components/loyalty/badge-medal';
-import BadgeProgressBar from '@/components/loyalty/badge-progress-bar';
-import BadgeTimeline from '@/components/loyalty/badge-timeline';
-import StatCard from '@/components/loyalty/stat-card';
+import AchievementCard from '@/components/achievement-card';
+import BadgeMedal from '@/components/badge-medal';
+import BadgeProgressBar from '@/components/badge-progress-bar';
+import BadgeTimeline from '@/components/badge-timeline';
+import StatCard from '@/components/stat-card';
 import type { AchievementData} from "@/types/achievement";
 import { ACHIEVEMENT_ICONS, ALL_ACHIEVEMENT_NAMES } from "@/types/achievement";
 import { BADGE_CONFIG } from "@/types/badge";

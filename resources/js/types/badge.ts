@@ -41,7 +41,7 @@ export const BADGE_CONFIG: Record<BadgeName, BadgeConfig> = {
         text: 'text-amber-300',
         ring: 'ring-amber-400/40',
         icon: '◈',
-        required: 4,
+        required: 1,
     },
     Silver: {
         gradient: 'from-slate-300 to-slate-500',
@@ -49,7 +49,7 @@ export const BADGE_CONFIG: Record<BadgeName, BadgeConfig> = {
         text: 'text-slate-200',
         ring: 'ring-slate-300/40',
         icon: '◈',
-        required: 8,
+        required: 2,
     },
     Gold: {
         gradient: 'from-yellow-400 to-yellow-600',
@@ -57,7 +57,7 @@ export const BADGE_CONFIG: Record<BadgeName, BadgeConfig> = {
         text: 'text-yellow-100',
         ring: 'ring-yellow-400/50',
         icon: '◈',
-        required: 12,
+        required: 3,
     },
     Platinum: {
         gradient: 'from-cyan-300 via-violet-400 to-fuchsia-400',
@@ -65,7 +65,7 @@ export const BADGE_CONFIG: Record<BadgeName, BadgeConfig> = {
         text: 'text-white',
         ring: 'ring-violet-300/50',
         icon: '◈',
-        required: 16,
+        required: 5,
     },
 };
 

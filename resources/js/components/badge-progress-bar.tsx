@@ -7,11 +7,9 @@ export default function BadgeProgressBar({ current, next, remaining }: BadgeProg
         BADGE_CONFIG[current as BadgeName] ?? BADGE_CONFIG.Unranked;
     const nextCfg = BADGE_CONFIG[next as BadgeName] ?? null;
 
-    const currentRequired = currentCfg.required;
-    const nextRequired = nextCfg ? nextCfg.required : currentRequired;
-    const total = nextRequired - currentRequired;
-    const done = total - remaining;
-    const pct = total > 0 ? Math.round((done / total) * 100) : 100;
+    const nextRequired = nextCfg ? nextCfg.required : currentCfg.required;
+    const done = nextRequired - remaining;
+    const pct = nextRequired > 0 ? Math.round((done / nextRequired) * 100) : 100;
 
     return (
         <div className="space-y-3">

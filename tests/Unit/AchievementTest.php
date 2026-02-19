@@ -190,6 +190,6 @@ class AchievementTest extends TestCase
         // After 5 purchases: unlocked "First Purchase" + "Purchase Streak" = 2 achievements
         // User is now SILVER (requires 2). GOLD requires 3, so remaining = 1.
         $this->assertEquals(1, $progress['remaining']);
-        $this->assertEquals(Badges::GOLD->name, $progress['next_badge']);
+        $this->assertEquals(ucfirst(strtolower(Badges::GOLD->name)), $progress['next_badge']);
     }
 }

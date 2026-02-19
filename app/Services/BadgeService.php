@@ -48,15 +48,17 @@ class BadgeService
         $badgeIdx = array_search($nameOfCurrentBadge, $badgeList, true);
 
         if ($badgeIdx !== false && isset($badgeList[$badgeIdx + 1])) {
-            $nextBadge = $badgeList[$badgeIdx + 1];
+            $nextBadgeKey = $badgeList[$badgeIdx + 1];
 
-            $required = Badges::get($nextBadge)->value;
+            $required = Badges::get($nextBadgeKey)->value;
 
             $remaining = max(0, $required - $achievementCount);
+
+            $nextBadge = ucfirst(strtolower($nextBadgeKey));
         }
 
         return [
-            'current_badge' => $nameOfCurrentBadge,
+            'current_badge' => ucfirst(strtolower($nameOfCurrentBadge)),
             'next_badge' => $nextBadge ?? 'None – you\'ve reached the top!',
             'remaining' => $remaining,
         ];

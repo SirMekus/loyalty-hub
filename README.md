@@ -13,7 +13,7 @@ A Laravel 12 + React 19 + TypeScript application that rewards users with achieve
 | Node.js     | 22+             |
 | npm         | 10+             |
 
-The application uses **SQLite by default** — no database server is required (but on my local environment, I used a database server o. Lol).
+The application uses **SQLite by default** - no database server is required (but on my local environment, I used a database server o. Lol).
 
 ---
 

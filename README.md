@@ -1,6 +1,6 @@
 # E-Commerce Loyalty System
 
-A Laravel 12 + React 19 + TypeScript application that rewards users with achievements, badges, and wallet cashback based on their purchase history.
+A Laravel 12 + React 19 + TypeScript application that rewards users with achievements, badges, and cashback based on their purchase history.
 
 ---
 

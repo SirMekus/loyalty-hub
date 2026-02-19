@@ -10,7 +10,6 @@ export interface AchievementData {
     remaining_to_unlock_next_badge: number;
     total_purchases: number;
     wallet_balance: number;
-    // wallet_currency: string;
 }
 
 export interface AchievementCardProps {
@@ -27,10 +26,4 @@ export const ACHIEVEMENT_ICONS: Record<string, string> = {
     'Loyal Customer': '👑',
 };
 
-export const ALL_ACHIEVEMENT_NAMES: string[] = [
-    'First Purchase',
-    'Purchase Streak',
-    'Mid Tier Shopper',
-    'High Tier Shopper',
-    'Loyal Customer',
-];
+export const ALL_ACHIEVEMENT_NAMES: string[] = Object.keys(ACHIEVEMENT_ICONS);

@@ -69,10 +69,4 @@ export const BADGE_CONFIG: Record<BadgeName, BadgeConfig> = {
     },
 };
 
-export const ALL_BADGES: BadgeName[] = [
-    'Unranked',
-    'Bronze',
-    'Silver',
-    'Gold',
-    'Platinum',
-];
+export const ALL_BADGES: BadgeName[] = Object.keys(BADGE_CONFIG) as Array<keyof typeof BADGE_CONFIG>;

@@ -6,19 +6,19 @@ services:
         image: e-commerce-loyalty-app
         ports:
             - "8000:8000"
+        # Only DB_HOST/PORT/USERNAME/PASSWORD are set here, for entrypoint.sh's shell-level
+        # "wait for the database" check. Everything else (DB_CONNECTION, QUEUE_CONNECTION,
+        # SESSION_DRIVER, CACHE_STORE, APP_ENV, ...) lives in the .env baked into the image
+        # (see .env.docker) rather than as real container env vars — PHP populates $_SERVER
+        # from the real process environment, and phpunit.xml's test-only overrides can't
+        # win against a $_SERVER value, only against .env-sourced values. Setting these here
+        # would silently make `composer test` run against the real MySQL DB and the real
+        # (async) queue connection instead of the isolated sqlite/sync setup tests expect.
         environment: &app-env
-            APP_ENV: local
-            APP_DEBUG: "true"
-            APP_URL: http://localhost:8000
-            DB_CONNECTION: mysql
             DB_HOST: db
             DB_PORT: "3306"
-            DB_DATABASE: loyalty
             DB_USERNAME: loyalty
             DB_PASSWORD: secret
-            SESSION_DRIVER: database
-            CACHE_STORE: database
-            QUEUE_CONNECTION: database
         volumes:
             - storage:/var/www/html/storage
         healthcheck:

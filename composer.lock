@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3c79e040a3570288a4004f205416801a",
+    "content-hash": "ea8791b51a8dd3451fa71b56ce399bd4",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -3760,6 +3760,56 @@
                 "source": "https://github.com/ramsey/uuid/tree/4.9.2"
             },
             "time": "2025-12-14T04:43:48+00:00"
+        },
+        {
+            "name": "sirmekus/ego",
+            "version": "4.1.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/SirMekus/ego.git",
+                "reference": "3e34a64cea4a8e0346f0ced290b929a527064138"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/SirMekus/ego/zipball/3e34a64cea4a8e0346f0ced290b929a527064138",
+                "reference": "3e34a64cea4a8e0346f0ced290b929a527064138",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^8.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Emmy\\Ego\\Provider\\EgoProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "files": [
+                    "src/helpers.php"
+                ],
+                "psr-4": {
+                    "Emmy\\Ego\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "SirMekus (Emmy Boy)",
+                    "email": "mekus600@gmail.com"
+                }
+            ],
+            "description": "This package aims to simplify payment gateway processing for all mobile/web applications using a common interface. For this, contributors are highly welcomed to help create more payment gateways features that other users can use from a single library.",
+            "support": {
+                "issues": "https://github.com/SirMekus/ego/issues",
+                "source": "https://github.com/SirMekus/ego/tree/4.1.2"
+            },
+            "time": "2026-08-20T00:54:17+00:00"
         },
         {
             "name": "symfony/clock",
@@ -8853,12 +8903,12 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {},
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
         "php": "^8.2"
     },
-    "platform-dev": [],
-    "plugin-api-version": "2.6.0"
+    "platform-dev": {},
+    "plugin-api-version": "2.9.0"
 }

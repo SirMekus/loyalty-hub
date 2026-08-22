@@ -15,11 +15,15 @@ A Laravel 12 + React 19 + TypeScript application that rewards users with achieve
 
 The application uses **SQLite by default** - no database server is required (but on my local environment, I used a database server o. Lol).
 
+You'll also need a Paystack **test** secret key for cashback disbursement (see [Cashback Disbursement](#cashback-disbursement) below) — `.env.example` already ships with a working one.
+
 ---
 
 ## Running with Docker
 
 The application is fully containerized. This is the easiest way to run it — no local PHP, Composer, or Node installation required.
+
+Before building, set your own Paystack test secret key in `.env.docker` (`PAYSTACK_SECRET_KEY=`) — it's left blank rather than baking a real key into the image, and cashback disbursement will fail without one.
 
 ```bash
 docker compose up -d --build
@@ -172,7 +176,7 @@ Order created
                                 └─► Resolves new badge tier from achievement count
                                       └─► BadgeUnlocked event fired (if badge changed)
                                             └─► BadgeUnlockedListener
-                                                  └─► Credits ₦300 cashback to wallet
+                                                  └─► Disburses ₦300 cashback via Paystack
 ```
 
 ### Achievement thresholds
@@ -201,13 +205,64 @@ Badges are determined by the number of achievements a user has unlocked:
 
 ### Cashback
 
-Every time a user's badge tier increases, **₦300** is credited to their wallet. A user who progresses through all badge tiers will receive a total of **₦1,200** in cashback.
+Every time a user's badge tier increases, **₦300** is disbursed to their bank account via Paystack (see [Cashback Disbursement](#cashback-disbursement)). A user who progresses through all badge tiers will receive a total of **₦1,200**.
+
+The `payments` table (completed payments only) is the source of truth for how much has actually been disbursed to a user — see `User::totalDisbursed` / `totalDisbursedFormatted`.
+
+---
+
+## Cashback Disbursement
+
+Cashback is a **real** Paystack transfer (`BadgeUnlockedListener` → `PaymentService` → `PaystackRepository`), not a simulation — it hits Paystack's actual API, just with a test secret key (`PAYSTACK_SECRET_KEY` in `.env`). Every user gets a bank account automatically on creation (`User::booted()`, mirroring wallet auto-creation), seeded by default with Paystack's documented sandbox account (`0000000000` at Zenith Bank, `057`) — the one account guaranteed to resolve successfully in test mode, since Paystack validates account numbers against real NUBAN data even for test keys.
+
+### Live account verification is rate-limited
+
+Paystack allows only **3** live account-resolution calls (`/bank/resolve`) before rejecting further requests. To work around this:
+
+- Every account successfully resolved is cached in the `resolved_bank_accounts` table (`PaystackRepository::verifyAccountNumber()` checks this table before ever calling the live API).
+- To seed your own known-good account/bank pairs without spending any of the 3 live calls, add them to `database/seeders/ResolvedBankAccountSeeder.php` and run:
+
+  ```bash
+  php artisan db:seed --class=ResolvedBankAccountSeeder
+  ```
+
+  You're responsible for these being correct — nothing in the seeder is verified against Paystack. Use `php artisan bank:list` (below) to confirm a bank code first; listing banks isn't subject to the same rate limit.
+
+### Attaching a real bank account (for manual/browser testing)
+
+To see the full flow with your own real (or another real, resolvable test) bank account instead of the seeded default:
+
+```bash
+php artisan bank:list [search]
+```
+
+Lists Paystack-recognized banks and their codes, optionally filtered by name (e.g. `php artisan bank:list Zenith`).
+
+```bash
+php artisan bank:set-real-account {userId} {accountNumber} {bankCode}
+```
+
+Resolves the account (from cache if already known, otherwise live) and attaches it to the given user.
+
+### Failure handling
+
+If the Paystack transfer call throws, `PaymentService` logs the failure (reference, user, amount, error) and marks the payment `FAILED` rather than leaving it `PENDING` or silently marking it `COMPLETED`; the exception still propagates so the queued job is retried per Laravel's normal queue failure handling.
+
+### Swapping the gateway
+
+Nothing in `PaymentService` or `BadgeUnlockedListener` is Paystack-specific — they only depend on the `App\Interfaces\MoneyTransfer` contract. `PaystackRepository` is just the current implementation, bound in `AppServiceProvider::register()`:
+
+```php
+$this->app->bind(MoneyTransfer::class, PaystackRepository::class);
+```
+
+To use a different gateway, implement `MoneyTransfer` (`getProvider`, `prepareForTransfer`, `listBanks`, `verifyAccountNumber`, `transfer`) in a new class and change that one binding — no other application code needs to change.
 
 ---
 
 ## Checking a User's Progress
 
-Retrieve a user's full loyalty status — achievements unlocked, next achievements, badge, and wallet balance — via the API:
+Retrieve a user's full loyalty status — achievements unlocked, next achievements, badge, and total cashback disbursed — via the API:
 
 ```
 GET /users/{userId}/achievements
@@ -223,14 +278,16 @@ GET /users/{userId}/achievements
     "email": "jane@example.com"
   },
   "unlocked_achievements": ["First Purchase", "Purchase Streak"],
-  "next_achievements": ["Mid Tier Shopper", "High Tier Shopper", "Loyal Customer"],
-  "current_badge": "BRONZE",
-  "next_badge": "SILVER",
-  "achievements_to_next_badge": 1,
+  "next_available_achievements": ["Mid Tier Shopper", "High Tier Shopper", "Loyal Customer"],
+  "current_badge": "Bronze",
+  "next_badge": "Silver",
+  "remaining_to_unlock_next_badge": 1,
   "total_purchases": 6,
-  "wallet_balance": "₦300.00"
+  "wallet_balance": "₦ 300.00"
 }
 ```
+
+`wallet_balance` is sourced from the `payments` table (completed payments only) via `User::totalDisbursedFormatted` — the field name is kept for API stability, but it no longer reads from `WalletService`.
 
 The loyalty dashboard at **http://localhost:8000/loyalty** lists all users and their current status.
 
@@ -258,6 +315,9 @@ This clears the config cache, runs a PHP code style check, and then runs the ful
 | `php artisan migrate:fresh --seed`        | Reset database and re-seed                       |
 | `php artisan app:make-order {id} {count}` | Simulate orders for a user                       |
 | `php artisan queue:listen --tries=1`      | Start the queue worker manually                  |
+| `php artisan bank:list [search]`          | List Paystack-recognized banks and codes         |
+| `php artisan bank:set-real-account {id} {accountNumber} {bankCode}` | Attach a resolved bank account to a user |
+| `php artisan db:seed --class=ResolvedBankAccountSeeder` | Seed known-good account resolutions (bypasses Paystack's live rate limit) |
 | `npm run dev`                             | Start Vite dev server with HMR                   |
 | `npm run build`                           | Build production frontend assets                 |
 

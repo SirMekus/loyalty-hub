@@ -6,6 +6,7 @@ use App\Enums\Badges;
 use App\Enums\PaymentStatus;
 use App\Events\BadgeUnlocked;
 use App\Interfaces\MoneyTransfer;
+use App\Interfaces\ProvidesGatewayFixtures;
 use App\Listeners\BadgeUnlockedListener;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -80,50 +81,20 @@ class BadgeUnlockedListenerTest extends TestCase
     public function it_handles_disbursement_correctly(): void
     {
         // Unlike the other tests in this file, this one does NOT mock MoneyTransfer —
-        // it exercises the real PaystackRepository/PaymentService::disburse() code path
-        // (real field mapping, payload construction, amount denomination, recipient_type),
-        // only faking the outbound HTTP call. This is the shape Paystack's live test API
-        // actually returned when this flow was verified against it directly, so it still
-        // catches the bugs a MoneyTransfer-level mock can't (wrong field names, wrong
-        // denomination, a missing required field) without depending on the network or
-        // Paystack's rate-limited endpoints.
-        Http::fake([
-            'api.paystack.co/transferrecipient*' => Http::response([
-                'status' => true,
-                'message' => 'Transfer recipient created successfully',
-                'data' => [
-                    'active' => true,
-                    'currency' => 'NGN',
-                    'domain' => 'test',
-                    'id' => 123456,
-                    'name' => 'Test',
-                    'recipient_code' => 'RCP_test000000',
-                    'type' => 'nuban',
-                    'is_deleted' => false,
-                    'details' => [
-                        'account_number' => '0000000000',
-                        'account_name' => null,
-                        'bank_code' => '057',
-                        'bank_name' => 'Zenith Bank',
-                    ],
-                ],
-            ]),
-            'api.paystack.co/transfer*' => Http::response([
-                'status' => true,
-                'message' => 'Transfer has been queued',
-                'data' => [
-                    'reference' => 'test-reference',
-                    'domain' => 'test',
-                    'amount' => config('business.cashback') * 100,
-                    'currency' => 'NGN',
-                    'source' => 'balance',
-                    'reason' => 'Bonus',
-                    'recipient' => 123456,
-                    'status' => 'success',
-                    'transfer_code' => 'TRF_test000000',
-                ],
-            ]),
-        ]);
+        // it exercises the real gateway implementation's code path (field mapping,
+        // payload construction, amount denomination, recipient_type), only faking the
+        // outbound HTTP call. The sample responses come from whatever provider is
+        // actually bound (see ProvidesGatewayFixtures), so this keeps working — without
+        // editing this test — if the bound provider is ever swapped in
+        // AppServiceProvider; a provider that hasn't supplied fixtures yet skips
+        // cleanly instead of failing on hardcoded, provider-specific mocks.
+        $provider = app(MoneyTransfer::class);
+
+        if (! $provider instanceof ProvidesGatewayFixtures) {
+            $this->markTestSkipped(get_class($provider).' does not implement ProvidesGatewayFixtures.');
+        }
+
+        Http::fake($provider::fakeHttpResponses());
 
         $user = User::factory()->create();
 

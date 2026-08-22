@@ -3,11 +3,13 @@
 namespace App\Repositories;
 
 use App\Interfaces\MoneyTransfer;
+use App\Interfaces\ProvidesGatewayFixtures;
 use App\Models\ResolvedBankAccount;
 use App\Services\PaymentService;
 use Emmy\Ego\Gateway\Paystack\Paystack;
+use Illuminate\Support\Facades\Http;
 
-class PaystackRepository extends Paystack implements MoneyTransfer
+class PaystackRepository extends Paystack implements MoneyTransfer, ProvidesGatewayFixtures
 {
     public function getProvider(): string
     {
@@ -15,7 +17,53 @@ class PaystackRepository extends Paystack implements MoneyTransfer
     }
 
     /**
-     * Paystack caps live account-resolution calls at 3 before it starts rejecting
+     * Sample responses for Paystack's transfer endpoints, captured from real test-mode
+     * API calls, for tests that exercise the real gateway code path without hitting
+     * the network. See ProvidesGatewayFixtures.
+     */
+    public static function fakeHttpResponses(): array
+    {
+        return [
+            'api.paystack.co/transferrecipient*' => Http::response([
+                'status' => true,
+                'message' => 'Transfer recipient created successfully',
+                'data' => [
+                    'active' => true,
+                    'currency' => 'NGN',
+                    'domain' => 'test',
+                    'id' => 123456,
+                    'name' => 'Test',
+                    'recipient_code' => 'RCP_test000000',
+                    'type' => 'nuban',
+                    'is_deleted' => false,
+                    'details' => [
+                        'account_number' => '0000000000',
+                        'account_name' => null,
+                        'bank_code' => '057',
+                        'bank_name' => 'Zenith Bank',
+                    ],
+                ],
+            ]),
+            'api.paystack.co/transfer*' => Http::response([
+                'status' => true,
+                'message' => 'Transfer has been queued',
+                'data' => [
+                    'reference' => 'test-reference',
+                    'domain' => 'test',
+                    'amount' => config('business.cashback') * 100,
+                    'currency' => 'NGN',
+                    'source' => 'balance',
+                    'reason' => 'Bonus',
+                    'recipient' => 123456,
+                    'status' => 'success',
+                    'transfer_code' => 'TRF_test000000',
+                ],
+            ]),
+        ];
+    }
+
+    /**
+     * Paystack caps live account-resolution calls at 3 (in test mode) before it starts rejecting
      * further requests, so a successfully resolved account_number/bank_code pair is
      * cached and never re-verified against the API.
      */

@@ -258,6 +258,8 @@ $this->app->bind(MoneyTransfer::class, PaystackRepository::class);
 
 To use a different gateway, implement `MoneyTransfer` (`getProvider`, `prepareForTransfer`, `listBanks`, `verifyAccountNumber`, `transfer`) in a new class and change that one binding — no other application code needs to change.
 
+`tests/Unit/BadgeUnlockedListenerTest::it_handles_disbursement_correctly` exercises the real gateway code path (not a `MoneyTransfer` mock) against faked HTTP responses, so it stays useful across a gateway swap without editing the test: it asks the currently-bound provider for its own sample responses via the optional `App\Interfaces\ProvidesGatewayFixtures` contract (`PaystackRepository::fakeHttpResponses()`). A new provider that hasn't implemented it yet just skips this one test cleanly, instead of failing against hardcoded, Paystack-specific mocks.
+
 ---
 
 ## Checking a User's Progress

@@ -4,10 +4,11 @@ namespace Tests\Unit;
 
 use App\Enums\Achievements;
 use App\Enums\Badges;
-use App\Enums\TransactionType;
+use App\Enums\PaymentStatus;
 use App\Events\AchievementUnlocked;
 use App\Events\BadgeUnlocked;
 use App\Events\PurchaseMade;
+use App\Interfaces\MoneyTransfer;
 use App\Listeners\AchievementUnlockedListener;
 use App\Listeners\BadgeUnlockedListener;
 use App\Listeners\PurchaseMadeListener;
@@ -15,7 +16,6 @@ use App\Models\User;
 use App\Services\AchievementService;
 use App\Services\BadgeService;
 use App\Services\OrderService;
-use App\Services\PaymentService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
 use PHPUnit\Framework\Attributes\Test;
@@ -136,26 +136,65 @@ class AchievementTest extends TestCase
     }
 
     #[Test]
-    public function it_credits_300_naira_cashback_when_badge_is_unlocked(): void
+    public function it_disburses_and_records_a_completed_payment_when_badge_is_unlocked(): void
     {
         $user = User::factory()->create();
 
-        // Verify the payment provider is called with the correct user and amount.
-        $this->mock(PaymentService::class)
-            ->shouldReceive('disburse')
-            ->once()
-            ->with($user, config('business.cashback'));
+        // Stub the external gateway so no real network call is made, while letting
+        // PaymentService's own start/disburse/complete logic run for real.
+        $moneyTransfer = $this->mock(MoneyTransfer::class);
+        $moneyTransfer->shouldReceive('getProvider')->andReturn('paystack');
+        $moneyTransfer->shouldReceive('prepareForTransfer')->once()->andReturnUsing(fn (array $data) => $data);
+        $moneyTransfer->shouldReceive('transfer')->once()->andReturn(['status' => true]);
 
         $listener = app(BadgeUnlockedListener::class);
         $listener->handle(new BadgeUnlocked(Badges::BRONZE->name, $user));
 
-        // Verify the internal wallet was credited for dashboard earnings tracking.
-        $this->assertDatabaseHas('wallet_transactions', [
+        // The payments table (completed payments only) is the source of truth for what's
+        // been disbursed to the user so far.
+        $this->assertDatabaseHas('payments', [
+            'user_id' => $user->id,
             'amount' => config('business.cashback') * 100,
-            'transaction_type' => TransactionType::CREDIT->name,
+            'status' => PaymentStatus::COMPLETED->value,
         ]);
 
-        $this->assertTrue($user->wallet->balance == config('business.cashback'));
+        $this->assertEquals(config('business.cashback') * 100, $user->total_disbursed);
+    }
+
+    #[Test]
+    public function it_actually_sends_the_disbursement_to_the_payment_provider_with_correct_details(): void
+    {
+        $user = User::factory()->create();
+        $bank = $user->bank;
+
+        // Resolve the real, bound provider's identifier before we mock it out, so this
+        // stays correct if the app's default provider ever changes.
+        $provider = app(MoneyTransfer::class)->getProvider();
+
+        // Assert on the payload the provider is actually asked to transfer, so this fails
+        // if the transfer is skipped, or if the wrong amount/recipient reaches the gateway.
+        $moneyTransfer = $this->mock(MoneyTransfer::class);
+        $moneyTransfer->shouldReceive('getProvider')->andReturn($provider);
+        $moneyTransfer->shouldReceive('prepareForTransfer')->once()->andReturnUsing(fn (array $data) => $data);
+        $moneyTransfer->shouldReceive('transfer')
+            ->once()
+            ->withArgs(function (array $payload) use ($bank) {
+                return $payload['amount'] === config('business.cashback') * 100
+                    && $payload['account_number'] === $bank->account_number
+                    && $payload['bank_code'] === $bank->bank_code
+                    && $payload['recipient_type'] === 'nuban';
+            })
+            ->andReturn(['status' => true]);
+
+        $listener = app(BadgeUnlockedListener::class);
+        $listener->handle(new BadgeUnlocked(Badges::BRONZE->name, $user));
+
+        // If disbursement never reached the provider, the mock expectations above
+        // will have failed the test already; this is the corresponding DB-side check.
+        $this->assertDatabaseHas('payments', [
+            'user_id' => $user->id,
+            'status' => PaymentStatus::COMPLETED->value,
+        ]);
     }
 
     #[Test]

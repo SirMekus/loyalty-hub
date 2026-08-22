@@ -28,7 +28,7 @@ RUN npm ci
 COPY . .
 
 RUN composer dump-autoload --optimize \
-    && cp .env.example .env \
+    && cp .env.docker .env \
     && php artisan key:generate --ansi \
     && npm run build \
     && rm -rf node_modules \

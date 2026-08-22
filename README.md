@@ -291,7 +291,7 @@ GET /users/{userId}/achievements
 
 `wallet_balance` is sourced from the `payments` table (completed payments only) via `User::totalDisbursedFormatted` — the field name is kept for API stability, but it no longer reads from `WalletService`.
 
-The loyalty dashboard at **http://localhost:8000/loyalty** lists all users and their current status.
+The loyalty dashboard at **http://localhost:8000/** lists all users and their current status.
 
 ---
 

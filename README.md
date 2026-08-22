@@ -17,6 +17,38 @@ The application uses **SQLite by default** - no database server is required (but
 
 ---
 
+## Running with Docker
+
+The application is fully containerized. This is the easiest way to run it — no local PHP, Composer, or Node installation required.
+
+```bash
+docker compose up -d --build
+```
+
+This builds one image (PHP 8.3 + Node 22, with the frontend already compiled into it) and starts three services:
+
+| Service | Description |
+|---------|-------------|
+| `app`   | Serves the app at **http://localhost:8000** via `php artisan serve`. Runs migrations automatically on first boot. |
+| `queue` | Runs `php artisan queue:work`, processing the achievement/badge/cashback event chain. |
+| `db`    | MySQL 8, with a persistent volume. |
+
+Once the stack is healthy (`docker compose ps`), seed data and simulate orders the same way as a local setup, just prefixed with `docker compose exec`:
+
+```bash
+docker compose exec app php artisan db:seed
+docker compose exec app php artisan app:make-order 1 6
+docker compose exec app composer test
+```
+
+To stop and remove containers (add `-v` to also drop the database volume):
+
+```bash
+docker compose down
+```
+
+---
+
 ## Setup
 
 Run the single setup command to install all dependencies, configure the environment, run migrations, and build the frontend:

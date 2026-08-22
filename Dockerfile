@@ -28,6 +28,7 @@ RUN npm ci
 COPY . .
 
 RUN composer dump-autoload --optimize \
+    && (test -f .env.docker || (echo "Missing .env.docker — copy .env.docker.example to .env.docker (and set PAYSTACK_SECRET_KEY) before building." >&2 && exit 1)) \
     && cp .env.docker .env \
     && php artisan key:generate --ansi \
     && npm run build \

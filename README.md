@@ -15,7 +15,7 @@ A Laravel 12 + React 19 + TypeScript application that rewards users with achieve
 
 The application uses **SQLite by default** - no database server is required (but on my local environment, I used a database server o. Lol).
 
-You'll also need a Paystack **test** secret key for cashback disbursement (see [Cashback Disbursement](#cashback-disbursement) below) — `.env.example` already ships with a working one.
+You'll also need a Paystack **test** secret key for cashback disbursement (see [Cashback Disbursement](#cashback-disbursement) below) — set `PAYSTACK_SECRET_KEY` in `.env` yourself; it's intentionally left blank in `.env.example`.
 
 ---
 
@@ -23,7 +23,14 @@ You'll also need a Paystack **test** secret key for cashback disbursement (see [
 
 The application is fully containerized. This is the easiest way to run it — no local PHP, Composer, or Node installation required.
 
-Before building, set your own Paystack test secret key in `.env.docker` (`PAYSTACK_SECRET_KEY=`) — it's left blank rather than baking a real key into the image, and cashback disbursement will fail without one.
+`.env.docker` is gitignored (like `.env`), so it's yours to edit freely without it ever showing up as a git change. Before building, create it from the tracked template and set your own Paystack test secret key:
+
+```bash
+cp .env.docker.example .env.docker
+# then edit .env.docker and set PAYSTACK_SECRET_KEY
+```
+
+The build fails with a clear message if `.env.docker` doesn't exist at all; if it exists but `PAYSTACK_SECRET_KEY` is blank, the build succeeds but cashback disbursement will fail at runtime — see [Cashback Disbursement](#cashback-disbursement).
 
 ```bash
 docker compose up -d --build

@@ -73,17 +73,17 @@ class UserAchievementTest extends TestCase
     }
 
     #[Test]
-    public function it_lists_all_achievements_as_next_available_for_a_fresh_user(): void
+    public function it_lists_only_the_immediate_next_achievement_for_a_fresh_user(): void
     {
+        // Achievements form a single ordered progression, so only the very next one
+        // (First Purchase) should be returned — not every remaining achievement.
         $user = User::factory()->create();
 
         $nextAvailable = $this->getJson("/users/{$user->id}/achievements")
             ->assertOk()
             ->json('next_available_achievements');
 
-        foreach (Achievements::cases() as $achievement) {
-            $this->assertContains(str_replace('_', ' ', $achievement->name), $nextAvailable);
-        }
+        $this->assertEquals(['First Purchase'], $nextAvailable);
     }
 
     #[Test]

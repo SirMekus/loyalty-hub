@@ -39,19 +39,21 @@ class AchievementService
     }
 
     /**
-     * Return achievements not yet unlocked.
+     * Return the next achievement the user can unlock — only the immediate next one,
+     * not every remaining achievement, since Achievements form a single ordered
+     * progression (by required purchase count) rather than independent groups.
      */
     public function getNextAchievements(User $user): array
     {
         $unlocked = $this->getUnlockedAchievements($user);
-        $achievementList = Achievements::keys();
 
-        return array_values(
-            array_filter(
-                $achievementList,
-                fn (string $name) => ! in_array($name, $unlocked, true)
-            )
-        );
+        foreach (Achievements::cases() as $achievement) {
+            if (! in_array($achievement->name, $unlocked, true)) {
+                return [$achievement->name];
+            }
+        }
+
+        return [];
     }
 
     /**

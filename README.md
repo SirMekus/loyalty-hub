@@ -210,7 +210,7 @@ Every time a user's badge tier increases, **₦300** is credited to their wallet
 Retrieve a user's full loyalty status — achievements unlocked, next achievements, badge, and wallet balance — via the API:
 
 ```
-GET /api/users/{userId}/achievements
+GET /users/{userId}/achievements
 ```
 
 **Example response:**

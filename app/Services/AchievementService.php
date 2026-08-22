@@ -25,7 +25,7 @@ class AchievementService
             if ($purchaseCount >= $required && ! in_array($name, $previousUnlocked, true)) {
                 // Persist the newly unlocked achievement
                 $achievement = $user->achievements()->create(['name' => $name]);
-                event(new AchievementUnlocked($achievement));
+                event(new AchievementUnlocked($achievement->name, $user));
             }
         }
     }

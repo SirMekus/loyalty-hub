@@ -26,8 +26,7 @@ class AchievementUnlockedListener implements ShouldQueue
         /**
          * Fire BadgeUnlocked if the user's badge tier has changed.
          */
-        $achievement = $event->achievement;
-        $user = $achievement->user;
+        $user = $event->user;
 
         $achievementCount = $user->achievements()->count();
 
@@ -37,7 +36,7 @@ class AchievementUnlockedListener implements ShouldQueue
         if ($earnedBadge !== $currentBadge) {
             $user->update(['current_badge' => $earnedBadge]);
 
-            event(new BadgeUnlocked($user));
+            event(new BadgeUnlocked($earnedBadge->name, $user));
         }
     }
 }

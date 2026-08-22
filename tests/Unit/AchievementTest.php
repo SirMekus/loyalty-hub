@@ -49,7 +49,7 @@ class AchievementTest extends TestCase
             // We improvise timestamp difference so that our "latest" will really fetch the latest entry
             sleep(1);
             $achievement = $user->achievements()->latest()->first();
-            $achievementListener->handle(new AchievementUnlocked($achievement));
+            $achievementListener->handle(new AchievementUnlocked($achievement->name, $user));
         }
     }
 
@@ -74,7 +74,7 @@ class AchievementTest extends TestCase
         // Now we want to confirm that the achievement is actually run and saved in the database
         $achievement = $user->achievements()->first();
         $achievementListener = app(AchievementUnlockedListener::class);
-        $achievementListener->handle(new AchievementUnlocked($achievement));
+        $achievementListener->handle(new AchievementUnlocked($achievement->name, $user));
 
         $this->assertDatabaseHas('achievements', [
             'user_id' => $user->id,
@@ -147,7 +147,7 @@ class AchievementTest extends TestCase
             ->with($user, config('business.cashback'));
 
         $listener = app(BadgeUnlockedListener::class);
-        $listener->handle(new BadgeUnlocked($user));
+        $listener->handle(new BadgeUnlocked(Badges::BRONZE->name, $user));
 
         // Verify the internal wallet was credited for dashboard earnings tracking.
         $this->assertDatabaseHas('wallet_transactions', [
@@ -173,7 +173,7 @@ class AchievementTest extends TestCase
         ]);
 
         $listener = app(AchievementUnlockedListener::class);
-        $listener->handle(new AchievementUnlocked($firstAchievement));
+        $listener->handle(new AchievementUnlocked($firstAchievement->name, $user));
 
         Event::assertDispatched(BadgeUnlocked::class, fn (BadgeUnlocked $e) => $e->user->is($user));
     }

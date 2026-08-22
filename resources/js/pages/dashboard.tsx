@@ -16,7 +16,7 @@ interface PageProps {
 }
 
 async function fetchUserAchievements(userId: number): Promise<AchievementData> {
-    const response = await fetch(`/api/users/${userId}/achievements`);
+    const response = await fetch(`/users/${userId}/achievements`);
     if (!response.ok) throw new Error(`Request failed: ${response.status} ${response.statusText}`);
     return response.json();
 }

@@ -19,7 +19,7 @@ class UserAchievementTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $this->getJson("/api/users/{$user->id}/achievements")
+        $this->getJson("/users/{$user->id}/achievements")
             ->assertOk()
             ->assertJsonStructure([
                 'user' => ['id', 'name', 'email'],
@@ -38,7 +38,7 @@ class UserAchievementTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $this->getJson("/api/users/{$user->id}/achievements")
+        $this->getJson("/users/{$user->id}/achievements")
             ->assertOk()
             ->assertJsonFragment([
                 'user' => [
@@ -52,7 +52,7 @@ class UserAchievementTest extends TestCase
     #[Test]
     public function it_returns_404_for_a_nonexistent_user(): void
     {
-        $this->getJson('/api/users/99999/achievements')
+        $this->getJson('/users/99999/achievements')
             ->assertNotFound();
     }
 
@@ -61,7 +61,7 @@ class UserAchievementTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $this->getJson("/api/users/{$user->id}/achievements")
+        $this->getJson("/users/{$user->id}/achievements")
             ->assertOk()
             ->assertJsonFragment([
                 'unlocked_achievements' => [],
@@ -77,7 +77,7 @@ class UserAchievementTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $nextAvailable = $this->getJson("/api/users/{$user->id}/achievements")
+        $nextAvailable = $this->getJson("/users/{$user->id}/achievements")
             ->assertOk()
             ->json('next_available_achievements');
 
@@ -92,7 +92,7 @@ class UserAchievementTest extends TestCase
         $user = User::factory()->create();
         $user->achievements()->create(['name' => Achievements::First_Purchase->name]);
 
-        $this->getJson("/api/users/{$user->id}/achievements")
+        $this->getJson("/users/{$user->id}/achievements")
             ->assertOk()
             ->assertJsonFragment([
                 'unlocked_achievements' => ['First Purchase'],
@@ -105,7 +105,7 @@ class UserAchievementTest extends TestCase
         $user = User::factory()->create();
         $user->achievements()->create(['name' => Achievements::First_Purchase->name]);
 
-        $nextAvailable = $this->getJson("/api/users/{$user->id}/achievements")
+        $nextAvailable = $this->getJson("/users/{$user->id}/achievements")
             ->assertOk()
             ->json('next_available_achievements');
 
@@ -120,7 +120,7 @@ class UserAchievementTest extends TestCase
         $user = User::factory()->create(['current_badge' => Badges::BRONZE]);
         $user->achievements()->create(['name' => Achievements::First_Purchase->name]);
 
-        $this->getJson("/api/users/{$user->id}/achievements")
+        $this->getJson("/users/{$user->id}/achievements")
             ->assertOk()
             ->assertJsonFragment([
                 'current_badge' => ucfirst(strtolower(Badges::BRONZE->name)),
@@ -139,7 +139,7 @@ class UserAchievementTest extends TestCase
             ['amount' => 7000, 'status' => PaymentStatus::COMPLETED],
         ]);
 
-        $this->getJson("/api/users/{$user->id}/achievements")
+        $this->getJson("/users/{$user->id}/achievements")
             ->assertOk()
             ->assertJsonFragment(['total_purchases' => 3]);
     }
@@ -153,7 +153,7 @@ class UserAchievementTest extends TestCase
             $user->achievements()->create(['name' => $achievement->name]);
         }
 
-        $this->getJson("/api/users/{$user->id}/achievements")
+        $this->getJson("/users/{$user->id}/achievements")
             ->assertOk()
             ->assertJsonFragment([
                 'current_badge' => ucfirst(strtolower(Badges::PLATINUM->name)),

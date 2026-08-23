@@ -9,7 +9,7 @@ export interface AchievementData {
     next_badge: string;
     remaining_to_unlock_next_badge: number;
     total_purchases: number;
-    wallet_balance: number;
+    total_earnings: string;
 }
 
 export interface AchievementCardProps {

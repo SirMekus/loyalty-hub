@@ -40,21 +40,5 @@ class BadgeUnlockedListener implements ShouldQueue
          * Ideally, this should be done via a webhook. But to keep it simple, we just assume that any 'successful' payment will always be successful; we won't wait for webhook verification.
          */
         $this->paymentService->markAsComplete($payment);
-
-        // ! todo: Once the payment thingy is completed, we phase out wallet service. Total disbursed should be fetched from the payments model.
-        /**
-         * Credit the 'wallet' (record the earnings) so cumulative earnings are visible on
-         * the dashboard.
-         *
-         * Note that the "wallet" is just figurative for an actual
-         * bank account that must have been
-         * credited.
-         */
-        // $wallet = $this->walletService->getWalletByModelOrId($user);
-        // $this->walletService->creditWallet(
-        //     $wallet,
-        //     $amount,
-        //     'Badge unlock cashback – ₦'.$amount,
-        // );
     }
 }

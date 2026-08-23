@@ -175,7 +175,7 @@ export default function LoyaltyDashboard() {
                         />
                     </div>
 
-                    {/* Wallet Balance */}
+                    {/* Total Earnings */}
                     <div
                         className="glass fade-up rounded-2xl p-5"
                         style={{ animationDelay: '140ms' }}
@@ -186,7 +186,7 @@ export default function LoyaltyDashboard() {
                                     Total Earnings
                                 </p>
                                 <p className="font-display text-3xl font-bold text-emerald-400">
-                                    {data.wallet_balance}
+                                    {data.total_earnings}
                                 </p>
                                 <p className="mt-1 text-xs text-white/30">
                                     cashback from badge unlocks

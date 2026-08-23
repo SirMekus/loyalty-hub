@@ -220,7 +220,7 @@ The `payments` table (completed payments only) is the source of truth for how mu
 
 ## Cashback Disbursement
 
-Cashback is a **real** Paystack transfer (`BadgeUnlockedListener` → `PaymentService` → `PaystackRepository`), not a simulation — it hits Paystack's actual API, just with a test secret key (`PAYSTACK_SECRET_KEY` in `.env`). Every user gets a bank account automatically on creation (`User::booted()`, mirroring wallet auto-creation), seeded by default with Paystack's documented sandbox account (`0000000000` at Zenith Bank, `057`) — the one account guaranteed to resolve successfully in test mode, since Paystack validates account numbers against real NUBAN data even for test keys.
+Cashback is a **real** Paystack transfer (`BadgeUnlockedListener` → `PaymentService` → `PaystackRepository`), not a simulation — it hits Paystack's actual API, just with a test secret key (`PAYSTACK_SECRET_KEY` in `.env`). Every user gets a bank account automatically on creation (`User::booted()`), seeded by default with Paystack's documented sandbox account (`0000000000` at Zenith Bank, `057`) — the one account guaranteed to resolve successfully in test mode, since Paystack validates account numbers against real NUBAN data even for test keys.
 
 ### Live account verification is rate-limited
 
@@ -292,11 +292,9 @@ GET /users/{userId}/achievements
   "next_badge": "Silver",
   "remaining_to_unlock_next_badge": 1,
   "total_purchases": 6,
-  "wallet_balance": "₦ 300.00"
+  "total_earnings": "₦ 300.00"
 }
 ```
-
-`wallet_balance` is sourced from the `payments` table (completed payments only) via `User::totalDisbursedFormatted` — the field name is kept for API stability, but it no longer reads from `WalletService`.
 
 The loyalty dashboard at **http://localhost:8000/** lists all users and their current status.
 

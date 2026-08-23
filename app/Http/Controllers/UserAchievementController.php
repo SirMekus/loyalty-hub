@@ -28,7 +28,7 @@ class UserAchievementController extends Controller
             'next_badge' => $badgeProgress['next_badge'],
             'remaining_to_unlock_next_badge' => $badgeProgress['remaining'],
             'total_purchases' => $user->orders->count(),
-            'wallet_balance' => $user->total_disbursed_formatted,
+            'total_earnings' => $user->total_disbursed_formatted,
         ]);
     }
 }

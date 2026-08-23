@@ -29,7 +29,7 @@ class UserAchievementTest extends TestCase
                 'next_badge',
                 'remaining_to_unlock_next_badge',
                 'total_purchases',
-                'wallet_balance',
+                'total_earnings',
             ]);
     }
 

@@ -218,6 +218,43 @@ class AchievementTest extends TestCase
     }
 
     #[Test]
+    public function it_awards_every_skipped_badge_tier_when_achievements_unlock_in_a_burst(): void
+    {
+        // Achievements can unlock in a burst: e.g. several orders get created before
+        // the queue catches up, so by the time a single AchievementUnlocked job runs,
+        // the achievement count may already qualify for several badge tiers at once
+        // (not just the very next one). All of them must still be credited — jumping
+        // straight to the highest tier would silently skip the ones in between.
+        Event::fake([BadgeUnlocked::class]);
+
+        $user = User::factory()->create();
+
+        // Unlock all 5 achievements up front, simulating the queue lagging behind a
+        // burst of orders, then process only the FIRST resulting AchievementUnlocked
+        // event — the worst case, where a single listener run must catch everything.
+        foreach (Achievements::cases() as $achievement) {
+            $user->achievements()->create(['name' => $achievement->name]);
+        }
+
+        $firstAchievement = $user->achievements()->first();
+        $listener = app(AchievementUnlockedListener::class);
+        $listener->handle(new AchievementUnlocked($firstAchievement->name, $user));
+
+        $badgesAwarded = [];
+        Event::assertDispatched(BadgeUnlocked::class, function (BadgeUnlocked $e) use (&$badgesAwarded) {
+            $badgesAwarded[] = $e->earnedBadge;
+
+            return true;
+        });
+
+        $this->assertEquals(
+            [Badges::BRONZE->name, Badges::SILVER->name, Badges::GOLD->name, Badges::PLATINUM->name],
+            $badgesAwarded,
+        );
+        $this->assertEquals(Badges::PLATINUM, $user->fresh()->current_badge);
+    }
+
+    #[Test]
     public function it_calculates_remaining_achievements_for_next_badge(): void
     {
         Event::fake();

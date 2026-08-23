@@ -86,7 +86,7 @@ class PaymentService
             throw $e;
         }
 
-        Log::info('[MockPaymentProvider] Cashback disbursed', [
+        Log::info('Cashback disbursed', [
             'reference' => $payment->reference,
             'user_id' => $user->id,
             'amount' => $payment->amount,

@@ -4,6 +4,7 @@ services:
             context: .
             dockerfile: Dockerfile
         image: e-commerce-loyalty-app
+        restart: unless-stopped
         ports:
             - "8000:8000"
         # Only DB_HOST/PORT/USERNAME/PASSWORD are set here, for entrypoint.sh's shell-level
@@ -34,6 +35,7 @@ services:
 
     queue:
         image: e-commerce-loyalty-app
+        restart: unless-stopped
         command: ["php", "artisan", "queue:work", "--tries=3", "--timeout=90"]
         environment: *app-env
         volumes:
@@ -46,6 +48,7 @@ services:
 
     db:
         image: mysql:8.0
+        restart: unless-stopped
         environment:
             MYSQL_DATABASE: loyalty
             MYSQL_USER: loyalty

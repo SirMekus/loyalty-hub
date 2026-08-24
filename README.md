@@ -176,18 +176,12 @@ Each order is created with a random amount between ₦1,000 and ₦50,000 and a 
 
 When an order is created the following chain executes asynchronously through the queue:
 
-```
-Order created
-  └─► PurchaseMade event fired
-        └─► PurchaseMadeListener
-              └─► Checks order count against achievement thresholds
-                    └─► AchievementUnlocked event fired (for each new achievement)
-                          └─► AchievementUnlockedListener
-                                └─► Resolves new badge tier from achievement count
-                                      └─► BadgeUnlocked event fired (if badge changed)
-                                            └─► BadgeUnlockedListener
-                                                  └─► Disburses ₦300 cashback via Paystack
-```
+1. An order is created, firing a `PurchaseMade` event.
+2. `PurchaseMadeListener` picks it up and checks the user's order count against the achievement thresholds.
+3. Every threshold newly crossed fires its own `AchievementUnlocked` event.
+4. `AchievementUnlockedListener` handles each one, resolving the badge tier for the user's current achievement count.
+5. If that's higher than their stored badge, a `BadgeUnlocked` event fires for every tier crossed (not just the highest).
+6. `BadgeUnlockedListener` handles each of those, disbursing ₦300 cashback via Paystack (or your desired payment provider) per tier.
 
 ### Achievement thresholds
 

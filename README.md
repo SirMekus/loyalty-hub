@@ -73,11 +73,14 @@ This executes the following steps in order:
 ```
 composer install
 cp .env.example .env
+cp .env.docker.example .env.docker
 php artisan key:generate
 php artisan migrate
 npm install
 npm run build
 ```
+
+Both `.env` and `.env.docker` are only created if they don't already exist, so re-running `composer setup` never overwrites a key you've already set. The `.env.docker` copy is just a convenience for later — if you decide to try [Running with Docker](#running-with-docker), it's already there; Docker's own build doesn't run this script, so a Docker-only setup still needs its own `.env.docker` (see below).
 
 ### Using MySQL instead of SQLite
 
